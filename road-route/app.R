@@ -1,18 +1,15 @@
 # Shiny app for exploring health facility distributions
 
+# Load libraries ----
 library(shiny)
 library(shinydashboard)
 library(ggplot2)
 
-# Load data and functions
+# Load data and functions ----
 load('sysdata.rda')
 source('functions.R')
 
-# tmp=read.csv('data/glm table.csv',as.is=T)
-# coef1=tmp[,'Estimate']
-# names(coef1)=tmp$X
-
-# Define UI 
+# Define UI ----
 ui <- dashboardPage(
   
   dashboardHeader(title = "Optimal layout of roads", titleWidth = 300),
@@ -79,17 +76,9 @@ ui <- dashboardPage(
     )
 )
 
-# Input list for debug
-# input=list();
-# input$road.cost='1'
-# input$pa.cost='2'
-# input$forest.cost='1'
-# input$tipo='optimized'
-# input$protect='1'
-# input$landscape=3
-
-# Define server logic 
+# Define server logic ---- 
 server <- function(input, output) {
+  
   # Load data based on landscape
   landscapeList <- reactive({
     l <- as.numeric(input$landscape)
@@ -104,7 +93,7 @@ server <- function(input, output) {
     end <- startEnd[startEnd$layout == l, c("endX", "endY")]
     end <- as.numeric(end)
     
-    #get distance to urban centers
+    # Get distance to urban centers
     uc=read.csv('data/uc.csv')
     uc=uc[uc$landscape==l,]
     dist=numeric()
@@ -114,15 +103,11 @@ server <- function(input, output) {
       dist=cbind(dist,sqrt(x2+y2))
     }
     grid1$dist_uc=apply(dist,1,min)
-    
-    #points
-    # pt <- data.frame(x=c(start[1], end[1]), y=c(start[2], end[2]),
-    #                  type=c("End Point"))
-    # pt <- rbind(pt, uc)
-    
+
     L <- list(optim1, grid1, start, end, uc)
   })
   
+  # Produce reactive output
   outList <- reactive({
     optim1 <- landscapeList()[[1]]
     grid1 <- landscapeList()[[2]]
@@ -157,27 +142,27 @@ server <- function(input, output) {
       user.coords=data.frame(x=c(start[1],x,end[1]),y=c(start[2],y,end[2]))
     }
     
-    #get nearest distance
+    # Get nearest distance
     user.grid$dist_road=get.dist(user.coords, user.grid)
     
-    #predict deforestation
+    # Predict deforestation
     tmp=with(user.grid, exp(coef1['(Intercept)']+
                               coef1['dist_road']*dist_road+
                               coef1['dist_uc']*dist_uc+
                               coef1['dist_road:dist_uc']*dist_road*dist_uc))
     user.grid$prob=def.prob(user.grid, coef1)
     
-    #get length of road
+    # Get length of road
     user.length <- get.length(user.coords)
     
-    #calculate expected cost
+    # Calculate expected cost
     ecost=get.cost(user.grid, road.cost, pa.cost, forest.cost, protect, user.length)
     
-    #change name from "Forest" to "UA"
+    # Change name from "Forest" to "UA"
     cond=user.grid$tipo=='Forest'
     user.grid$tipo[cond]='UA'
     
-    #get prob.cor (this helps displaying deforestation probability)
+    # Get prob.cor (this helps displaying deforestation probability)
     cond=user.grid$tipo%in%c('UA','PA')
     user.grid2=user.grid[cond,]
     cond=user.grid2$tipo=='PA'
@@ -186,13 +171,13 @@ server <- function(input, output) {
     cond=user.grid2$prob>prob.thresh
     user.grid2=user.grid2[cond,]
     
-    #relabel LC type for plotting
+    # Re-label LC type for plotting
     user.grid$tipo <- factor(user.grid$tipo, levels = c("PA", "UA", "Pasture"),
                              labels = c("Protected Forested Area (PA)", 
                                         "Unprotected Forested Area (UA)",
                                         "Pasture"))
     
-    #plot results
+    # Create plots
     res=ggplot() +
       geom_tile(data = user.grid, alpha = 0.8,aes(x = x, y = y,fill = tipo)) +
       geom_path(data = user.coords, aes(x = x, y = y), show.legend = F, lwd = 1.5) +
@@ -205,13 +190,13 @@ server <- function(input, output) {
       scale_shape_manual(values=10, name='') +
       coord_fixed() + theme_bw(base_size = 14)
     
-    #calculate straight line cost
+    # Calculate straight line cost
     str.grid <- grid1
     str.grid$dist_road <- get.dist(str.coords, str.grid)
     str.grid$prob <- def.prob(str.grid, coef1)
     str.length <- get.length(str.coords)
     
-    #sideplots
+    # Create sideplots
     rd.len.inc <- (user.length - str.length) / str.length * 100
     d.pa.perc <- ecost$d.pa.prop * 100
     d.ua.perc <- ecost$d.ua.prop * 100
