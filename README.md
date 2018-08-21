@@ -13,11 +13,11 @@ Each tool is found in a subdirectory, which contain the following files:
 
 ### Running the applications
 
-##### Via URL
+#### Via URL
 
 The decision tools for [planning the location of a new health facility](https://kokbent.shinyapps.io/intToolHF/) and for [designing a new road through a protected area](https://kokbent.shinyapps.io/intToolLULC/) can be accessed online through these individual links. These applications are freely hosted by [shinyapps.io](http://www.shinyapps.io/).
 
-##### Via local R
+#### Via local R
 
 Alternatively, these applications can be run locally (e.g., on your computer) using R and the `shiny` package by directly calling the code from this GitHub repository. This may be useful for applications that are computationally intensive and/or highly accessed, as the free servers from RStudio have limits on memory and active hours.
 
