@@ -29,5 +29,5 @@ install.packages(c("ggplot2", "shiny", "shinydashboard"))
 shiny::runGitHub("decision-support-tools", "justinmillar", subdir = "health-facility")
 
 # Run road route app
-shiny::runGitHub("decision-support-tools", "justinmillar", subdir = "health-facility")
+shiny::runGitHub("decision-support-tools", "justinmillar", subdir = "road-route")
 ```
