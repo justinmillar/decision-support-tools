@@ -3,7 +3,7 @@ Scenario-based Decision Support Tools with Shiny
 
 This repository contains the code for the decision support tools presented in ["Promoting actionable science through the use of scenario-based interactive web tools"](). These tools are built in R using the Shiny package, which can create interactive web applications .
 
-### Contents
+### Contents:
 
 Each tool is found in a subdirectory, which contain the following files:
 
@@ -11,7 +11,7 @@ Each tool is found in a subdirectory, which contain the following files:
 -   `functions.R` : R code containing functions used by the Shiny app.
 -   `sysdata.rda` and/or `data/` : An Rdata file and/or subdirectory containing data used by the Shiny app.
 
-### Running the applications
+### Running the applications:
 
 #### Via URL
 
